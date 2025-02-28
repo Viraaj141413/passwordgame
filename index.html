@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ultimate Fun Password Game</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background: linear-gradient(to top, #ffd3e0, #f9f9f9);
+      text-align: center;
+      padding: 30px;
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .container {
+      width: 90%;
+      max-width: 600px;
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0px 6px 20px rgba(0, 0, 0, 0.1);
+    }
+    input {
+      width: 100%;
+      padding: 15px;
+      font-size: 18px;
+      border-radius: 5px;
+      border: 2px solid #ccc;
+      margin-bottom: 10px;
+    }
+    .rule {
+      opacity: 0;
+      transform: translateY(10px);
+      transition: all 0.5s ease-in-out;
+      background: #f7f7f7;
+      padding: 12px;
+      margin: 10px 0;
+      border-radius: 8px;
+      border-left: 5px solid transparent;
+    }
+    .rule.pass {
+      background: #e0f7e0;
+      border-left-color: green;
+    }
+    .rule.fail {
+      background: #fce4e4;
+      border-left-color: red;
+    }
+    .progress {
+      width: 100%;
+      background: #eee;
+      border-radius: 10px;
+      margin: 20px 0;
+      overflow: hidden;
+    }
+    .progress-bar {
+      width: 0%;
+      height: 15px;
+      background: green;
+      transition: width 0.5s ease-in-out;
+    }
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Ultimate Fun Password Game</h1>
+    <input type="text" id="password" placeholder="Enter your password" />
+    <div class="progress"><div class="progress-bar"></div></div>
+    <div id="rules"></div>
+  </div>
+  <script>
+    const rules = [
+      { text: "Must be at least 8 characters", test: pwd => pwd.length >= 8 },
+      { text: "Must include a number", test: pwd => /\d/.test(pwd) },
+      { text: "Must include an uppercase letter", test: pwd => /[A-Z]/.test(pwd) },
+      { text: "Must include an emoji", test: pwd => /[\uD800-\uDFFF]/.test(pwd) },
+      { text: "Must include 'BANANA' 🍌 (Monkeys say so!)", test: pwd => /BANANA/.test(pwd) },
+      { text: "Must include a color name (e.g., 'blue', 'red')", test: pwd => /(red|blue|green|yellow|pink|purple)/i.test(pwd) },
+      { text: "Must rhyme with 'cat' (be creative!)", test: pwd => /(.at\b)/i.test(pwd) },
+    ];
+    let passedRules = 0;
+    const rulesContainer = document.getElementById("rules");
+    const progressBar = document.querySelector(".progress-bar");
+    document.getElementById("password").addEventListener("input", function () {
+      const pwd = this.value;
+      passedRules = 0;
+      rulesContainer.innerHTML = "";
+      rules.forEach((rule, index) => {
+        setTimeout(() => {
+          const passed = rule.test(pwd);
+          if (passed) passedRules++;
+          const ruleDiv = document.createElement("div");
+          ruleDiv.classList.add("rule", passed ? "pass" : "fail");
+          ruleDiv.innerText = (passed ? "✔ " : "❌ ") + rule.text;
+          ruleDiv.style.opacity = "1";
+          ruleDiv.style.transform = "translateY(0)";
+          rulesContainer.appendChild(ruleDiv);
+        }, index * 500);
+      });
+      progressBar.style.width = (passedRules / rules.length) * 100 + "%";
+    });
+  </script>
+</body>
+</html>
