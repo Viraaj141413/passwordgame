@@ -20,8 +20,9 @@
       align-items: center;
     }
     .container {
-      width: 100vw;
-      height: 100vh;
+      width: 90%;
+      max-width: 1200px;
+      height: 90vh;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -32,42 +33,82 @@
       box-shadow: 0px 6px 20px rgba(0, 0, 0, 0.1);
       border: 3px solid #ff66b2;
     }
+    h1 {
+      font-size: 36px;
+      margin-bottom: 20px;
+      color: #ff66b2;
+    }
     input {
-      width: 80%;
-      padding: 15px;
-      font-size: 18px;
-      border-radius: 10px;
-      border: 2px solid #ff66b2;
-      margin-bottom: 10px;
+      width: 90%;
+      padding: 20px;
+      font-size: 24px;
+      border-radius: 15px;
+      border: 3px solid #ff66b2;
+      margin-bottom: 20px;
       background: #fff0f5;
+    }
+    .tabs {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .tab {
+      padding: 15px 30px;
+      background: #ff66b2;
+      color: white;
+      border-radius: 15px;
+      cursor: pointer;
+      font-size: 20px;
+      font-weight: bold;
+      transition: background 0.3s ease;
+    }
+    .tab.active {
+      background: #ff3385;
+    }
+    .rules-container {
+      width: 90%;
+      height: 400px;
+      overflow-y: auto;
+      padding: 20px;
+      background: #fff0f5;
+      border-radius: 15px;
+      border: 2px solid #ff66b2;
+      display: flex;
+      flex-direction: column-reverse; /* Stack rules from bottom to top */
     }
     .rule {
       opacity: 0;
       transform: translateY(10px);
       transition: all 0.5s ease-in-out;
-      background: #fff0f5;
-      padding: 12px;
+      background: white;
+      padding: 15px;
       margin: 10px 0;
       border-radius: 10px;
       border-left: 6px solid transparent;
+      font-size: 20px;
       font-weight: bold;
       text-align: left;
-      width: 80%;
+      width: 100%;
     }
     .rule.pass {
       background: #d4f8d4;
       border-left-color: green;
     }
+    .rule.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
     .progress {
-      width: 80%;
+      width: 90%;
       background: #ffccd5;
-      border-radius: 10px;
+      border-radius: 15px;
       margin: 20px 0;
       overflow: hidden;
     }
     .progress-bar {
       width: 0%;
-      height: 15px;
+      height: 20px;
       background: #ff66b2;
       transition: width 0.5s ease-in-out;
     }
@@ -77,96 +118,150 @@
   <div class="container">
     <h1>🎉 Ultimate Fun Password Game 🎉</h1>
     <input type="text" id="password" placeholder="Enter your password" />
-    <div class="progress"><div class="progress-bar"></div></div>
-    <div id="rules"></div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <div class="tab active" data-tab="rules">Rules</div>
+      <div class="tab" data-tab="progress">Progress</div>
+    </div>
+
+    <!-- Rules Container -->
+    <div class="rules-container" id="rules-container">
+      <div id="rules"></div>
+    </div>
+
+    <!-- Progress Bar -->
+    <div class="progress">
+      <div class="progress-bar"></div>
+    </div>
   </div>
+
   <script>
     const rules = [
-      { text: "Rule 1: Must be at least 8 characters", test: pwd => pwd.length >= 8 },
-      { text: "Rule 2: Must include a number", test: pwd => /\d/.test(pwd) },
-      { text: "Rule 3: Must include an uppercase letter", test: pwd => /[A-Z]/.test(pwd) },
-      { text: "Rule 4: Must include an emoji", test: pwd => /[\uD800-\uDFFF]/.test(pwd) },
-      { text: "Rule 5: Must include 'BANANA' 🍌", test: pwd => /BANANA/.test(pwd) },
-      { text: "Rule 6: Must include a color name (e.g., 'blue', 'red')", test: pwd => /(red|blue|green|yellow|pink|purple)/i.test(pwd) },
-      { text: "Rule 7: Must rhyme with 'cat'", test: pwd => /(.at\b)/i.test(pwd) },
-      { text: "Rule 8: Must include an animal name", test: pwd => /(lion|tiger|elephant|zebra|giraffe)/i.test(pwd) },
-      { text: "Rule 9: Must have the word 'earth'", test: pwd => /earth/i.test(pwd) },
-      { text: "Rule 10: Must be a palindrome", test: pwd => pwd === pwd.split('').reverse().join('') },
-      { text: "Rule 11: Must contain a space", test: pwd => /\s/.test(pwd) },
-      { text: "Rule 12: Must include a symbol (!, @, #, etc.)", test: pwd => /[!@#\$%\^&\*\(\)\_\+\-=\[\]\{\};:'",<>\./?\\|]/.test(pwd) },
-      { text: "Rule 13: Must have '2025' somewhere", test: pwd => /2025/.test(pwd) },
-      { text: "Rule 14: Must contain the word 'science'", test: pwd => /science/i.test(pwd) },
-      { text: "Rule 15: Must include a country name", test: pwd => /(USA|Canada|Japan|France|India)/i.test(pwd) },
-      { text: "Rule 16: Must contain 'Einstein' somewhere", test: pwd => /Einstein/i.test(pwd) },
-      { text: "Rule 17: Must have the chemical symbol for gold (Au)", test: pwd => /Au/.test(pwd) },
-      { text: "Rule 18: Must be divisible by 3 when converted to ASCII values", test: pwd => [...pwd].reduce((sum, char) => sum + char.charCodeAt(0), 0) % 3 === 0 },
-      { text: "Rule 19: Must include the word 'galaxy'", test: pwd => /galaxy/i.test(pwd) },
-      { text: "Rule 20: Must have the number '42' somewhere", test: pwd => /42/.test(pwd) },
-      { text: "Rule 21: Must have a Fibonacci sequence number", test: pwd => /1|2|3|5|8|13|21|34|55/.test(pwd) },
-      { text: "Rule 22: Must contain a city name from the list: Paris, Tokyo, Berlin", test: pwd => /(Paris|Tokyo|Berlin)/i.test(pwd) },
-      { text: "Rule 23: Must have the name of a famous philosopher (e.g., Socrates, Plato)", test: pwd => /(Socrates|Plato|Aristotle)/i.test(pwd) },
-      { text: "Rule 24: Must contain a mathematical symbol (e.g., +, -, *, /)", test: pwd => /[\+\-\*\/]/.test(pwd) },
-      { text: "Rule 25: Must contain the name of a popular programming language", test: pwd => /(Python|Java|C#|JavaScript)/i.test(pwd) },
-      { text: "Rule 26: Must have the symbol for the element oxygen (O)", test: pwd => /O/.test(pwd) },
-      { text: "Rule 27: Must include a prime number", test: pwd => /(2|3|5|7|11|13|17|19|23|29)/.test(pwd) },
-      { text: "Rule 28: Must include a famous movie title (e.g., Titanic, Inception)", test: pwd => /(Titanic|Inception|Avatar)/i.test(pwd) },
-      { text: "Rule 29: Must contain the phrase 'Quantum Physics'", test: pwd => /Quantum Physics/i.test(pwd) },
-      { text: "Rule 30: Must contain a reference to the moon (e.g., moon, lunar)", test: pwd => /(moon|lunar)/i.test(pwd) },
-      { text: "Rule 31: Must contain the word 'NASA'", test: pwd => /NASA/i.test(pwd) },
-      { text: "Rule 32: Must include a famous writer's name (e.g., Shakespeare, Hemingway)", test: pwd => /(Shakespeare|Hemingway|Dickens)/i.test(pwd) },
-      { text: "Rule 33: Must contain the word 'algorithm'", test: pwd => /algorithm/i.test(pwd) },
-      { text: "Rule 34: Must contain a word related to space exploration (e.g., rocket, satellite)", test: pwd => /(rocket|satellite)/i.test(pwd) },
-      { text: "Rule 35: Must have a number that corresponds to a date in history (e.g., 1776, 1492)", test: pwd => /(1776|1492)/.test(pwd) },
-      { text: "Rule 36: Must include the word 'infinity'", test: pwd => /infinity/i.test(pwd) },
-      { text: "Rule 37: Must have the word 'black hole'", test: pwd => /black hole/i.test(pwd) },
-      { text: "Rule 38: Must include a famous artist's name (e.g., Van Gogh, Picasso)", test: pwd => /(Van Gogh|Picasso)/i.test(pwd) },
-      { text: "Rule 39: Must contain a weather-related word (e.g., rain, snow)", test: pwd => /(rain|snow|cloud|storm)/i.test(pwd) },
-      { text: "Rule 40: Must have the name of an animal in the endangered species list", test: pwd => /(panda|tiger|rhino)/i.test(pwd) },
-      { text: "Rule 41: Must contain a mathematical constant (e.g., Pi, e)", test: pwd => /(Pi|e)/i.test(pwd) },
-      { text: "Rule 42: Must include the phrase 'Artificial Intelligence'", test: pwd => /Artificial Intelligence/i.test(pwd) },
-      { text: "Rule 43: Must contain a word related to technology (e.g., gadget, machine)", test: pwd => /(gadget|machine|tech)/i.test(pwd) },
-      { text: "Rule 44: Must include the name of a famous inventor (e.g., Tesla, Edison)", test: pwd => /(Tesla|Edison)/i.test(pwd) },
-      { text: "Rule 45: Must be the sum of all ASCII values in your password equals a Fibonacci number", test: pwd => {
-        const sum = [...pwd].reduce((acc, char) => acc + char.charCodeAt(0), 0);
-        return [1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144].includes(sum); 
-      }},
+      { text: "Rule1: Must be at least 8 characters", test: pwd => pwd.length >= 8 },
+      { text: "Rule2: Must include a number", test: pwd => /\d/.test(pwd) },
+      { text: "Rule3: Must include an uppercase letter", test: pwd => /[A-Z]/.test(pwd) },
+      { text: "Rule4: Must include an emoji", test: pwd => /[\uD800-\uDFFF]/.test(pwd) },
+      { text: "Rule5: Must include 'BANANA' 🍌", test: pwd => /BANANA/.test(pwd) },
+      { text: "Rule6: Must include a color name (e.g., 'blue', 'red')", test: pwd => /(red|blue|green|yellow|pink|purple)/i.test(pwd) },
+      { text: "Rule7: Must include a two-letter country code (e.g., US, CA, IN)", test: pwd => /(US|CA|IN|FR|DE|JP|CN|RU|BR|AU)/i.test(pwd) },
+      { text: "Rule8: Must include the name of an animal", test: pwd => /(lion|tiger|elephant|zebra|giraffe)/i.test(pwd) },
+      { text: "Rule9: Must have the word 'earth'", test: pwd => /earth/i.test(pwd) },
+      { text: "Rule10: Must include a mathematical equation (e.g., 2+2=4)", test: pwd => /\d+[\+\-\*\/]\d+=\d+/.test(pwd) },
+      { text: "Rule11: Must contain a space", test: pwd => /\s/.test(pwd) },
+      { text: "Rule12: Must include a symbol (!, @, #, etc.)", test: pwd => /[!@#\$%\^&\*\(\)\_\+\-=\[\]\{\};:'",<>\./?\\|]/.test(pwd) },
+      { text: "Rule13: Must have '2025' somewhere", test: pwd => /2025/.test(pwd) },
+      { text: "Rule14: Must contain the word 'science'", test: pwd => /science/i.test(pwd) },
+      { text: "Rule15: Must include a country name", test: pwd => /(USA|Canada|Japan|France|India)/i.test(pwd) },
+      { text: "Rule16: Must contain 'Einstein' somewhere", test: pwd => /Einstein/i.test(pwd) },
+      { text: "Rule17: Must have the chemical symbol for gold (Au)", test: pwd => /Au/.test(pwd) },
+      { text: "Rule18: Must be divisible by 3 when converted to ASCII values", test: pwd => [...pwd].reduce((sum, char) => sum + char.charCodeAt(0), 0) % 3 === 0 },
+      { text: "Rule19: Must include the word 'galaxy'", test: pwd => /galaxy/i.test(pwd) },
+      { text: "Rule20: Must have the number '42' somewhere", test: pwd => /42/.test(pwd) },
+      { text: "Rule21: Must have a Fibonacci sequence number", test: pwd => /1|2|3|5|8|13|21|34|55/.test(pwd) },
+      { text: "Rule22: Must contain a city name from the list: Paris, Tokyo, Berlin", test: pwd => /(Paris|Tokyo|Berlin)/i.test(pwd) },
+      { text: "Rule23: Must have the name of a famous philosopher (e.g., Socrates, Plato)", test: pwd => /(Socrates|Plato|Aristotle)/i.test(pwd) },
+      { text: "Rule24: Must contain a mathematical symbol (e.g., +, -, *, /)", test: pwd => /[\+\-\*\/]/.test(pwd) },
+      { text: "Rule25: Must contain the name of a popular programming language", test: pwd => /(Python|Java|C#|JavaScript)/i.test(pwd) },
+      { text: "Rule26: Must have the symbol for the element oxygen (O)", test: pwd => /O/.test(pwd) },
+      { text: "Rule27: Must include a prime number", test: pwd => /(2|3|5|7|11|13|17|19|23|29)/.test(pwd) },
+      { text: "Rule28: Must include a famous movie title (e.g., Titanic, Inception)", test: pwd => /(Titanic|Inception|Avatar)/i.test(pwd) },
+      { text: "Rule29: Must contain the phrase 'Quantum Physics'", test: pwd => /Quantum Physics/i.test(pwd) },
+      { text: "Rule30: Must contain a reference to the moon (e.g., moon, lunar)", test: pwd => /(moon|lunar)/i.test(pwd) },
+      { text: "Rule31: Must contain the word 'NASA'", test: pwd => /NASA/i.test(pwd) },
+      { text: "Rule32: Must include a famous writer's name (e.g., Shakespeare, Hemingway)", test: pwd => /(Shakespeare|Hemingway|Dickens)/i.test(pwd) },
+      { text: "Rule33: Must contain the word 'algorithm'", test: pwd => /algorithm/i.test(pwd) },
+      { text: "Rule34: Must contain a word related to space exploration (e.g., rocket, satellite)", test: pwd => /(rocket|satellite)/i.test(pwd) },
+      { text: "Rule35: Must have a number that corresponds to a date in history (e.g., 1776, 1492)", test: pwd => /(1776|1492)/.test(pwd) },
+      { text: "Rule36: Must include the word 'infinity'", test: pwd => /infinity/i.test(pwd) },
+      { text: "Rule37: Must have the word 'black hole'", test: pwd => /black hole/i.test(pwd) },
+      { text: "Rule38: Must include a famous artist's name (e.g., Van Gogh, Picasso)", test: pwd => /(Van Gogh|Picasso)/i.test(pwd) },
+      { text: "Rule39: Must contain a weather-related word (e.g., rain, snow)", test: pwd => /(rain|snow|cloud|storm)/i.test(pwd) },
+      { text: "Rule40: Must have the name of an animal in the endangered species list", test: pwd => /(panda|tiger|rhino)/i.test(pwd) },
+      { text: "Rule41: Must include a mathematical constant (e.g., Pi, e)", test: pwd => /(Pi|e)/i.test(pwd) },
+      { text: "Rule42: Must include the phrase 'Artificial Intelligence'", test: pwd => /Artificial Intelligence/i.test(pwd) },
+      { text: "Rule43: Must include a word related to technology (e.g., gadget, machine)", test: pwd => /(gadget|machine|tech)/i.test(pwd) },
+      { text: "Rule44: Must include the name of a famous inventor (e.g., Tesla, Edison)", test: pwd => /(Tesla|Edison)/i.test(pwd) },
+      { text: "Rule45: Must include a Fibonacci sequence number", test: pwd => /1|2|3|5|8|13|21|34|55/.test(pwd) },
     ];
 
     let currentRuleIndex = 0;
     const rulesContainer = document.getElementById("rules");
     const progressBar = document.querySelector(".progress-bar");
     const inputField = document.getElementById("password");
+    const tabs = document.querySelectorAll(".tab");
 
-    function showNextRule() {
-      if (currentRuleIndex >= rules.length) return;
-      const rule = rules[currentRuleIndex];
-      const ruleDiv = document.createElement("div");
-      ruleDiv.classList.add("rule");
-      ruleDiv.innerText = "❌ " + rule.text;
-      rulesContainer.appendChild(ruleDiv);
-      setTimeout(() => {
-        ruleDiv.style.opacity = "1";
-        ruleDiv.style.transform = "translateY(0)";
-      }, 100);
+    // Initialize all rules
+    function initializeRules() {
+      rules.forEach((rule, index) => {
+        const ruleDiv = document.createElement("div");
+        ruleDiv.classList.add("rule");
+        ruleDiv.id = `rule-${index + 1}`;
+        ruleDiv.innerText = `❌ ${rule.text}`;
+        rulesContainer.appendChild(ruleDiv);
+      });
+      // Show the first rule initially
+      showRule(currentRuleIndex);
     }
 
+    // Show a specific rule
+    function showRule(index) {
+      const ruleDiv = document.getElementById(`rule-${index + 1}`);
+      if (ruleDiv) {
+        ruleDiv.classList.add("visible");
+        // Auto-scroll to the latest rule
+        ruleDiv.scrollIntoView({ behavior: "smooth", block: "end" });
+      }
+    }
+
+    // Update all rules dynamically
+    function updateAllRules(pwd) {
+      let allRulesPassed = true;
+      for (let i = 0; i <= currentRuleIndex; i++) {
+        const ruleDiv = document.getElementById(`rule-${i + 1}`);
+        const passed = rules[i].test(pwd);
+        if (passed) {
+          ruleDiv.classList.add("pass");
+          ruleDiv.innerText = `✔ ${rules[i].text}`;
+          if (i === currentRuleIndex && currentRuleIndex < rules.length - 1) {
+            currentRuleIndex++;
+            showRule(currentRuleIndex);
+          }
+        } else {
+          ruleDiv.classList.remove("pass");
+          ruleDiv.innerText = `❌ ${rules[i].text}`;
+          allRulesPassed = false;
+        }
+      }
+      return allRulesPassed;
+    }
+
+    // Event listener for password input
     inputField.addEventListener("input", function () {
       const pwd = this.value;
-      if (currentRuleIndex >= rules.length) return;
-      const rule = rules[currentRuleIndex];
-      const passed = rule.test(pwd);
-      if (passed) {
-        const ruleDivs = rulesContainer.getElementsByClassName("rule");
-        const currentRuleDiv = ruleDivs[ruleDivs.length - 1];
-        currentRuleDiv.classList.add("pass");
-        currentRuleDiv.innerText = "✔ " + rule.text;
-        currentRuleIndex++;
-        setTimeout(showNextRule, 500);
+      const allRulesPassed = updateAllRules(pwd);
+      if (allRulesPassed) {
+        progressBar.style.width = "100%";
+      } else {
+        progressBar.style.width = `${(currentRuleIndex / rules.length) * 100}%`;
       }
-      progressBar.style.width = (currentRuleIndex / rules.length) * 100 + "%";
     });
 
-    showNextRule();
+    // Tab switching
+    tabs.forEach(tab => {
+      tab.addEventListener("click", () => {
+        tabs.forEach(t => t.classList.remove("active"));
+        tab.classList.add("active");
+        if (tab.dataset.tab === "rules") {
+          document.getElementById("rules-container").style.display = "block";
+        } else {
+          document.getElementById("rules-container").style.display = "none";
+        }
+      });
+    });
+
+    // Initialize
+    initializeRules();
   </script>
 </body>
 </html>
