@@ -107,6 +107,10 @@
             display: flex;
             flex-direction: column-reverse; /* Completed rules push down */
         }
+
+        .hidden {
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -126,80 +130,99 @@
     <script>
         const rules = [
             { text: "Password must contain at least one number.", check: (password) => /\d/.test(password) },
-            { text: "Password must contain at least one lowercase letter.", check: (password) => /[a-z]/.test(password) },
-            { text: "Password must contain at least one uppercase letter.", check: (password) => /[A-Z]/.test(password) },
-            { text: "Password must contain at least one special character (e.g., !, @, #, $).", check: (password) => /[!@#$%^&*(),.?":{}|<>]/.test(password) },
+            { text: "Password must contain at least one special character.", check: (password) => /[!@#$%^&*(),.?":{}|<>]/.test(password) },
+            { text: "Password must be at least 8 characters long.", check: (password) => password.length >= 8 },
+            { text: "Password must have at least one uppercase letter.", check: (password) => /[A-Z]/.test(password) },
             { text: "Password must not contain any spaces.", check: (password) => !/\s/.test(password) },
-            { text: "Password must not contain repeating characters (e.g., no 'aa' or 'bb').", check: (password) => !/(.)\1/.test(password) },
-            { text: "Password must not start or end with a number.", check: (password) => !/^\d/.test(password) && !/\d$/.test(password) },
-            { text: "Password must contain both an uppercase and lowercase letter.", check: (password) => /[A-Z]/.test(password) && /[a-z]/.test(password) },
-            { text: "Password must contain at least two vowels (A, E, I, O, U).", check: (password) => /[aeiouAEIOU]/.test(password) },
-            { text: "Password must contain at least one uppercase vowel (A, E, I, O, U).", check: (password) => /[AEIOU]/.test(password) },
-            { text: "Password must not have any consecutive numbers.", check: (password) => !/\d{2}/.test(password) },
-            { text: "Password must contain the word 'secure' in any form.", check: (password) => /secure/i.test(password) },
-            { text: "Password must contain no more than three of the same character.", check: (password) => !/(.)\1{3,}/.test(password) },
-            { text: "Password must contain both a number and a symbol, and they cannot be adjacent.", check: (password) => /\d/.test(password) && /[!@#$%^&*(),.?":{}|<>]/.test(password) && !/\d.*[!@#$%^&*(),.?":{}|<>]|[!@#$%^&*(),.?":{}|<>].*\d/.test(password) },
-            { text: "Password must contain the letters 'x' and 'z' but not next to each other.", check: (password) => /x/.test(password) && /z/.test(password) && !/xz|zx/.test(password) },
-            { text: "Password must be a palindrome.", check: (password) => password === password.split('').reverse().join('') },
-            { text: "Password must not contain vowels and consonants next to each other.", check: (password) => !/([aeiouAEIOU][bcdfghjklmnpqrstvwxyzBCDFGHJKLMNPQRSTVWXYZ]|[bcdfghjklmnpqrstvwxyzBCDFGHJKLMNPQRSTVWXYZ][aeiouAEIOU])/.test(password) },
-            { text: "Password must contain a mix of odd and even numbers.", check: (password) => /[13579]/.test(password) && /[02468]/.test(password) },
-            { text: "Password must contain both a letter and a symbol, in any order.", check: (password) => /[a-zA-Z]/.test(password) && /[!@#$%^&*(),.?":{}|<>]/.test(password) },
-            { text: "Password must include '123' but not next to each other.", check: (password) => /1.*2.*3/.test(password) },
-            { text: "Password must start with a letter and end with a number.", check: (password) => /^[a-zA-Z]/.test(password) && /\d$/.test(password) },
-            { text: "Password must not contain the word 'password'.", check: (password) => !/password/i.test(password) },
-            { text: "Password must contain at least one special character but not in the middle.", check: (password) => /^[^\W_]*[!@#$%^&*(),.?":{}|<>][^\W_]*$/.test(password) },
-            { text: "Password must contain an odd number of characters.", check: (password) => password.length % 2 !== 0 },
-            { text: "Password must contain the letters 'a' and 'e' at opposite ends.", check: (password) => password.startsWith('a') && password.endsWith('e') },
-            { text: "Password must not have any repeating words.", check: (password) => !/\b(\w+)\b.*\b\1\b/.test(password) },
-            { text: "Password must contain both upper and lowercase vowels.", check: (password) => /[aeiou]/.test(password) && /[AEIOU]/.test(password) },
-            { text: "Password must contain both an even and odd number of vowels.", check: (password) => (password.match(/[aeiouAEIOU]/g) || []).length % 2 === 0 },
-            { text: "Password must not have any vowels or consonants that repeat three times.", check: (password) => !/(.)\1{2}/.test(password) },
-            { text: "Password must include exactly one uppercase letter, and no more.", check: (password) => /[A-Z]/.test(password) && !/[A-Z].*[A-Z]/.test(password) },
-            { text: "Password must have alternating letters and numbers.", check: (password) => /([a-zA-Z]\d)+/.test(password) },
-            { text: "Password must not contain the sequence 'abc'.", check: (password) => !/abc/.test(password) },
-            { text: "Password must contain an even number of consonants.", check: (password) => (password.match(/[bcdfghjklmnpqrstvwxyzBCDFGHJKLMNPQRSTVWXYZ]/g) || []).length % 2 === 0 },
-            { text: "Password must have at least two digits, not in consecutive order.", check: (password) => /\d.*\d/.test(password) && !/\d{2}/.test(password) },
-            { text: "Password must include at least one punctuation mark at random positions.", check: (password) => /[!@#$%^&*(),.?":{}|<>]/.test(password) },
-            { text: "Password must not have any consecutive vowels.", check: (password) => !/[aeiouAEIOU]{2}/.test(password) },
-            { text: "Password must not contain numbers that are the same as the letters (e.g., 'O' and '0').", check: (password) => !/[o0]/i.test(password) },
-            { text: "Password must contain at least one word from a foreign language.", check: (password) => /[àáâãäåæçèéêëìíîïñòóôõöøùúûüýÿ]/.test(password) },
-            { text: "Password must not have any consecutive identical symbols.", check: (password) => !/(.)\1/.test(password) },
-            { text: "Password must include at least one negative symbol (e.g., '-').", check: (password) => /[-]/.test(password) },
-            { text: "Password must not contain consecutive letters from the alphabet (e.g., 'ab' or 'cd').", check: (password) => !/[a-zA-Z]{2}/.test(password) },
-            { text: "Password must include a color name (e.g., red, blue, green).", check: (password) => /(red|blue|green|yellow|black|white)/i.test(password) },
-            { text: "Password must contain a space before or after a symbol.", check: (password) => /[!@#$%^&*(),.?":{}|<>] /.test(password) || / [!@#$%^&*(),.?":{}|<>]/.test(password) }
+            { text: "Password must contain at least one lowercase letter.", check: (password) => /[a-z]/.test(password) },
+            { text: "Password must start with a number.", check: (password) => /^\d/.test(password) },
+            { text: "Password cannot contain any letter twice in a row.", check: (password) => !/(.)\1/.test(password) },
+            { text: "Password must contain at least one emoji.", check: (password) => /\p{Emoji}/u.test(password) },
+            { text: "Password must include 'x' but not next to 'y'.", check: (password) => /x/.test(password) && !/xy|yx/.test(password) },
+
+            { text: "Password must be the first 100 digits of Pi (after the decimal point).", check: (password) => /^1415926535/.test(password) && password.length >= 100 },
+            { text: "Password must be an anagram of a 20th-century war that involves over 5 different languages.", check: (password) => /[A-Z]/.test(password) && password.length > 20 && /World War II|Vietnam War|Korean War|Cold War|Soviet War/.test(password) },
+            { text: "Password must contain the first 13 prime numbers in sequence.", check: (password) => /^2 3 5 7 11 13 17 19 23 29 31 37 41/.test(password) },
+            { text: "Password must be the exact mathematical value of Euler's number (e).", check: (password) => /^2.718281828459045/.test(password) },
+            { text: "Password must contain a cryptographic hash string.", check: (password) => /^[a-f0-9]{32}$/.test(password) },
+            { text: "Password must be the Fibonacci sequence of the first 15 terms.", check: (password) => /^1 1 2 3 5 8 13 21 34 55 89 144 233 377 610/.test(password) },
+            { text: "Password must be the sum of the first 100 Fibonacci numbers.", check: (password) => password == 9273726921930789991724041252300416807 },
+            { text: "Password must represent a known integer in binary form.", check: (password) => /^[01]+$/.test(password) && parseInt(password, 2) > 1000 },
+            { text: "Password must be an exact cipher text using Vigenère cipher (use 'A' for key).", check: (password) => /[A-Z]/.test(password) && /^[A-Z]+$/.test(password) },
+            { text: "Password must include a historical event and its exact year.", check: (password) => /(Declaration of Independence 1776|Fall of Berlin Wall 1989|Moon Landing 1969)/i.test(password) },
+
+            { text: "Password must be a complete solution to a Sudoku puzzle.", check: (password) => /[1-9]{81}/.test(password) },
+            { text: "Password must be a cryptographic hash for a famous work of literature.", check: (password) => password === "c9f0f895fb98ab9159f51fd0297e236d" }, // MD5 hash for 'The Raven'
+            { text: "Password must represent an atom's atomic number in Roman numerals.", check: (password) => /(VII|VIII|X|XI|XIV|XIX|XX)/.test(password) },
+            { text: "Password must be the solution to a 3x3 Rubik's Cube state.", check: (password) => /^[A-Z]{9}$/.test(password) && password.length == 9 },
+            { text: "Password must be a string that represents the atomic number of a known element in Morse code.", check: (password) => /.---- ..- -/g.test(password) },
+            { text: "Password must be an encrypted phrase using RSA encryption with a public key.", check: (password) => password === "A12345Encrypted" },
+            { text: "Password must be a mirror of the original string.", check: (password) => password === password.split("").reverse().join("") }
         ];
+
+        let currentRule = 0;
 
         const passwordInput = document.getElementById('passwordInput');
         const feedback = document.getElementById('feedback');
         const rulesContainer = document.getElementById('rulesContainer');
 
-        let currentRuleIndex = 0;
+        function checkPassword() {
+            const password = passwordInput.value;
 
-        function updateRules() {
-            for (let i = 0; i < currentRuleIndex; i++) {
-                const rule = rules[i];
-                const ruleBox = document.createElement('div');
-                ruleBox.classList.add('rule-box');
-                ruleBox.innerHTML = `
-                    ${rule.text}
-                    <span class="checkmark">&#10004;</span>
-                `;
-                ruleBox.classList.add('completed');
-                rulesContainer.appendChild(ruleBox);
+            if (password.length > 0) {
+                feedback.innerHTML = '';
+            }
+
+            rules.forEach((rule, index) => {
+                if (rule.check(password)) {
+                    const ruleBox = document.getElementById('rule-' + index);
+                    if (!ruleBox.classList.contains('completed')) {
+                        ruleBox.classList.add('completed');
+                    }
+                }
+            });
+
+            if (currentRule < rules.length && rules[currentRule].check(password)) {
+                completeRule(currentRule);
             }
         }
 
-        passwordInput.addEventListener('input', () => {
-            const password = passwordInput.value;
+        function completeRule(ruleIndex) {
+            const ruleBox = document.getElementById('rule-' + ruleIndex);
+            ruleBox.classList.add('completed');
+            currentRule++;
 
-            feedback.textContent = '';
+            // Hide completed rule and show next one
+            setTimeout(() => {
+                const nextRuleBox = createRuleBox(rules[currentRule]);
+                rulesContainer.appendChild(nextRuleBox);
+            }, 500);
+        }
 
-            if (currentRuleIndex < rules.length && rules[currentRuleIndex].check(password)) {
-                updateRules();
-                currentRuleIndex++;
-            }
-        });
+        function createRuleBox(rule, index) {
+            const ruleBox = document.createElement('div');
+            ruleBox.classList.add('rule-box');
+            ruleBox.setAttribute('id', 'rule-' + index);
+
+            ruleBox.innerHTML = `
+                <span>Rule ${index + 1}: ${rule.text}</span>
+                <span class="checkmark">&#10004;</span>
+            `;
+            return ruleBox;
+        }
+
+        function initialize() {
+            rules.forEach((rule, index) => {
+                const ruleBox = createRuleBox(rule, index);
+                rulesContainer.appendChild(ruleBox);
+            });
+
+            checkPassword();
+        }
+
+        passwordInput.addEventListener('input', checkPassword);
+
+        initialize();
     </script>
 </body>
 </html>
