@@ -39,7 +39,7 @@
         }
 
         h1 {
-            font-size: 32px;
+            font-size: 28px;
             font-weight: bold;
             color: #333;
             margin-bottom: 20px;
@@ -127,13 +127,23 @@
         ];
 
         let currentRule = 0;
-
         const passwordInput = document.getElementById('passwordInput');
         const rulesContainer = document.getElementById('rulesContainer');
 
         function checkPassword() {
             const password = passwordInput.value;
+            let allCompleted = true;
 
+            document.querySelectorAll('.rule-box').forEach((ruleBox, index) => {
+                if (rules[index].check(password)) {
+                    ruleBox.classList.add('completed');
+                } else {
+                    ruleBox.classList.remove('completed');
+                    allCompleted = false;
+                }
+            });
+
+            // If the current rule is completed, add the next one
             if (currentRule < rules.length && rules[currentRule].check(password)) {
                 addNewRule();
             }
@@ -159,11 +169,6 @@
                 rulesContainer.appendChild(ruleBox);
             }
 
-            // Mark rule as completed
-            setTimeout(() => {
-                ruleBox.classList.add('completed');
-            }, 200);
-
             // Auto-scroll to show top 3 rules
             setTimeout(() => {
                 rulesContainer.scrollTop = 0;
@@ -177,7 +182,6 @@
         }
 
         passwordInput.addEventListener('input', checkPassword);
-
         initialize();
     </script>
 </body>
