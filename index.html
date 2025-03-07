@@ -33,15 +33,27 @@
             height: 90%;
             display: flex;
             flex-direction: column;
-            overflow-y: auto;
+            justify-content: flex-start;
+            overflow: hidden;
             position: relative;
         }
 
         h1 {
-            font-size: 32px;
+            font-size: 38px;
             font-weight: bold;
             color: #333;
             margin-bottom: 20px;
+        }
+
+        .rules-container {
+            display: flex;
+            flex-direction: column; /* Stack rules downwards */
+            align-items: center;
+            position: relative;
+            height: 60vh;
+            overflow-y: auto;
+            padding-bottom: 10px;
+            scroll-behavior: smooth;
         }
 
         .rule-box {
@@ -58,6 +70,7 @@
             align-items: center;
             opacity: 0;
             animation: fadeIn 0.8s ease forwards;
+            transition: background 0.3s, transform 0.3s;
         }
 
         @keyframes fadeIn {
@@ -69,6 +82,7 @@
             background: linear-gradient(135deg, #4CAF50, #66bb6a);
             color: white;
             border-color: #4CAF50;
+            transform: scale(1.05);
         }
 
         .checkmark {
@@ -96,14 +110,6 @@
             color: #f44336;
             font-weight: bold;
         }
-
-        .rules-container {
-            margin-top: 20px;
-            overflow-y: auto;
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-        }
     </style>
 </head>
 <body>
@@ -127,10 +133,14 @@
             { text: "Password must be at least 8 characters long.", check: (password) => password.length >= 8 },
             { text: "Password must have at least one uppercase letter.", check: (password) => /[A-Z]/.test(password) },
             { text: "Password must not contain any spaces.", check: (password) => !/\s/.test(password) },
-            { text: "Password must contain at least one lowercase letter.", check: (password) => /[a-z]/.test(password) }
+            { text: "Password must contain at least one lowercase letter.", check: (password) => /[a-z]/.test(password) },
+            { text: "Password must start with a number.", check: (password) => /^\d/.test(password) },
+            { text: "Password cannot contain any letter twice in a row.", check: (password) => !/(.)\1/.test(password) },
+            { text: "Password must contain at least one emoji.", check: (password) => /\p{Emoji}/u.test(password) },
+            { text: "Password must include 'x' but not next to 'y'.", check: (password) => /x/.test(password) && !/xy|yx/.test(password) },
         ];
 
-        let currentRuleIndex = 0;
+        let currentRule = 0;
 
         const passwordInput = document.getElementById('passwordInput');
         const feedback = document.getElementById('feedback');
@@ -143,26 +153,31 @@
                 feedback.innerHTML = '';
             }
 
-            // Check only the current rule before unlocking the next one
-            if (currentRuleIndex < rules.length && rules[currentRuleIndex].check(password)) {
-                completeRule(currentRuleIndex);
-                currentRuleIndex++; // Move to the next rule
-                showNextRule();
+            rules.forEach((rule, index) => {
+                if (rule.check(password)) {
+                    const ruleBox = document.getElementById('rule-' + index);
+                    if (!ruleBox.classList.contains('completed')) {
+                        ruleBox.classList.add('completed');
+                    }
+                }
+            });
+
+            if (currentRule < rules.length && rules[currentRule].check(password)) {
+                completeRule(currentRule);
             }
         }
 
         function completeRule(ruleIndex) {
             const ruleBox = document.getElementById('rule-' + ruleIndex);
-            if (!ruleBox.classList.contains('completed')) {
-                ruleBox.classList.add('completed');
-            }
-        }
+            ruleBox.classList.add('completed');
+            currentRule++;
 
-        function showNextRule() {
-            if (currentRuleIndex < rules.length) {
-                const nextRuleBox = createRuleBox(rules[currentRuleIndex], currentRuleIndex);
-                rulesContainer.appendChild(nextRuleBox);
-            }
+            // Show next rule at the top and auto-scroll to ensure visibility of top 3 rules
+            setTimeout(() => {
+                const nextRuleBox = createRuleBox(rules[currentRule]);
+                rulesContainer.insertBefore(nextRuleBox, rulesContainer.firstChild); // Insert new rule at the top
+                rulesContainer.scrollTop = 0; // Ensure the latest three rules are visible
+            }, 500);
         }
 
         function createRuleBox(rule, index) {
@@ -178,7 +193,12 @@
         }
 
         function initialize() {
-            showNextRule();
+            rules.forEach((rule, index) => {
+                const ruleBox = createRuleBox(rule, index);
+                rulesContainer.insertBefore(ruleBox, rulesContainer.firstChild); // Insert rules at the top
+            });
+
+            checkPassword();
         }
 
         passwordInput.addEventListener('input', checkPassword);
