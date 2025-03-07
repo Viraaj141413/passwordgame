@@ -1,267 +1,205 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Ultimate Fun Password Game</title>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-    body {
-      font-family: 'Comic Sans MS', cursive, sans-serif;
-      background: linear-gradient(to top, #ffccd5, #fff8f9);
-      text-align: center;
-      height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-    .container {
-      width: 90%;
-      max-width: 1200px;
-      height: 90vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      background: white;
-      padding: 20px;
-      border-radius: 20px;
-      box-shadow: 0px 6px 20px rgba(0, 0, 0, 0.1);
-      border: 3px solid #ff66b2;
-    }
-    h1 {
-      font-size: 36px;
-      margin-bottom: 20px;
-      color: #ff66b2;
-    }
-    input {
-      width: 90%;
-      padding: 20px;
-      font-size: 24px;
-      border-radius: 15px;
-      border: 3px solid #ff66b2;
-      margin-bottom: 20px;
-      background: #fff0f5;
-    }
-    .tabs {
-      display: flex;
-      justify-content: center;
-      gap: 10px;
-      margin-bottom: 20px;
-    }
-    .tab {
-      padding: 15px 30px;
-      background: #ff66b2;
-      color: white;
-      border-radius: 15px;
-      cursor: pointer;
-      font-size: 20px;
-      font-weight: bold;
-      transition: background 0.3s ease;
-    }
-    .tab.active {
-      background: #ff3385;
-    }
-    .rules-container {
-      width: 90%;
-      height: 400px;
-      overflow-y: auto;
-      padding: 20px;
-      background: #fff0f5;
-      border-radius: 15px;
-      border: 2px solid #ff66b2;
-      display: flex;
-      flex-direction: column-reverse; /* Stack rules from bottom to top */
-    }
-    .rule {
-      opacity: 0;
-      transform: translateY(10px);
-      transition: all 0.5s ease-in-out;
-      background: white;
-      padding: 15px;
-      margin: 10px 0;
-      border-radius: 10px;
-      border-left: 6px solid transparent;
-      font-size: 20px;
-      font-weight: bold;
-      text-align: left;
-      width: 100%;
-    }
-    .rule.pass {
-      background: #d4f8d4;
-      border-left-color: green;
-    }
-    .rule.visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
-    .progress {
-      width: 90%;
-      background: #ffccd5;
-      border-radius: 15px;
-      margin: 20px 0;
-      overflow: hidden;
-    }
-    .progress-bar {
-      width: 0%;
-      height: 20px;
-      background: #ff66b2;
-      transition: width 0.5s ease-in-out;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Password Game - Neal.fun</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(to right, #ff7e5f, #feb47b);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+            width: 100vw;
+        }
+
+        .game-container {
+            background-color: #fff;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 0 40px rgba(0, 0, 0, 0.15);
+            width: 90%;
+            max-width: 900px;
+            text-align: center;
+            height: 90%;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        h1 {
+            font-size: 38px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .rule-box {
+            width: 100%;
+            padding: 15px;
+            margin: 5px 0;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #f9f9f9, #eaeaea);
+            border: 2px solid #ddd;
+            font-size: 16px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            opacity: 0;
+            animation: fadeIn 0.8s ease forwards;
+            transition: background 0.3s, transform 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .rule-box.completed {
+            background: linear-gradient(135deg, #4CAF50, #66bb6a);
+            color: white;
+            border-color: #4CAF50;
+            transform: scale(1.05);
+        }
+
+        .checkmark {
+            font-size: 20px;
+            font-weight: bold;
+            display: none;
+        }
+
+        .rule-box.completed .checkmark {
+            display: inline;
+        }
+
+        .input-container input {
+            width: 70%;
+            padding: 14px;
+            font-size: 18px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            outline: none;
+        }
+
+        .feedback {
+            font-size: 16px;
+            margin-top: 15px;
+            color: #f44336;
+            font-weight: bold;
+        }
+
+        .rules-container {
+            margin-top: 20px;
+            overflow-y: auto;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column-reverse; /* Completed rules push down */
+        }
+    </style>
 </head>
 <body>
-  <div class="container">
-    <h1>🎉 Ultimate Fun Password Game 🎉</h1>
-    <input type="text" id="password" placeholder="Enter your password" />
 
-    <!-- Tabs -->
-    <div class="tabs">
-      <div class="tab active" data-tab="rules">Rules</div>
-      <div class="tab" data-tab="progress">Progress</div>
+    <div class="game-container">
+        <h1>Password Game</h1>
+
+        <div class="input-container">
+            <input type="text" id="passwordInput" placeholder="Enter your password" />
+        </div>
+
+        <div id="feedback" class="feedback"></div>
+
+        <div class="rules-container" id="rulesContainer"></div>
     </div>
 
-    <!-- Rules Container -->
-    <div class="rules-container" id="rules-container">
-      <div id="rules"></div>
-    </div>
+    <script>
+        const rules = [
+            { text: "Password must contain at least one number.", check: (password) => /\d/.test(password) },
+            { text: "Password must contain at least one lowercase letter.", check: (password) => /[a-z]/.test(password) },
+            { text: "Password must contain at least one uppercase letter.", check: (password) => /[A-Z]/.test(password) },
+            { text: "Password must contain at least one special character (e.g., !, @, #, $).", check: (password) => /[!@#$%^&*(),.?":{}|<>]/.test(password) },
+            { text: "Password must not contain any spaces.", check: (password) => !/\s/.test(password) },
+            { text: "Password must not contain repeating characters (e.g., no 'aa' or 'bb').", check: (password) => !/(.)\1/.test(password) },
+            { text: "Password must not start or end with a number.", check: (password) => !/^\d/.test(password) && !/\d$/.test(password) },
+            { text: "Password must contain both an uppercase and lowercase letter.", check: (password) => /[A-Z]/.test(password) && /[a-z]/.test(password) },
+            { text: "Password must contain at least two vowels (A, E, I, O, U).", check: (password) => /[aeiouAEIOU]/.test(password) },
+            { text: "Password must contain at least one uppercase vowel (A, E, I, O, U).", check: (password) => /[AEIOU]/.test(password) },
+            { text: "Password must not have any consecutive numbers.", check: (password) => !/\d{2}/.test(password) },
+            { text: "Password must contain the word 'secure' in any form.", check: (password) => /secure/i.test(password) },
+            { text: "Password must contain no more than three of the same character.", check: (password) => !/(.)\1{3,}/.test(password) },
+            { text: "Password must contain both a number and a symbol, and they cannot be adjacent.", check: (password) => /\d/.test(password) && /[!@#$%^&*(),.?":{}|<>]/.test(password) && !/\d.*[!@#$%^&*(),.?":{}|<>]|[!@#$%^&*(),.?":{}|<>].*\d/.test(password) },
+            { text: "Password must contain the letters 'x' and 'z' but not next to each other.", check: (password) => /x/.test(password) && /z/.test(password) && !/xz|zx/.test(password) },
+            { text: "Password must be a palindrome.", check: (password) => password === password.split('').reverse().join('') },
+            { text: "Password must not contain vowels and consonants next to each other.", check: (password) => !/([aeiouAEIOU][bcdfghjklmnpqrstvwxyzBCDFGHJKLMNPQRSTVWXYZ]|[bcdfghjklmnpqrstvwxyzBCDFGHJKLMNPQRSTVWXYZ][aeiouAEIOU])/.test(password) },
+            { text: "Password must contain a mix of odd and even numbers.", check: (password) => /[13579]/.test(password) && /[02468]/.test(password) },
+            { text: "Password must contain both a letter and a symbol, in any order.", check: (password) => /[a-zA-Z]/.test(password) && /[!@#$%^&*(),.?":{}|<>]/.test(password) },
+            { text: "Password must include '123' but not next to each other.", check: (password) => /1.*2.*3/.test(password) },
+            { text: "Password must start with a letter and end with a number.", check: (password) => /^[a-zA-Z]/.test(password) && /\d$/.test(password) },
+            { text: "Password must not contain the word 'password'.", check: (password) => !/password/i.test(password) },
+            { text: "Password must contain at least one special character but not in the middle.", check: (password) => /^[^\W_]*[!@#$%^&*(),.?":{}|<>][^\W_]*$/.test(password) },
+            { text: "Password must contain an odd number of characters.", check: (password) => password.length % 2 !== 0 },
+            { text: "Password must contain the letters 'a' and 'e' at opposite ends.", check: (password) => password.startsWith('a') && password.endsWith('e') },
+            { text: "Password must not have any repeating words.", check: (password) => !/\b(\w+)\b.*\b\1\b/.test(password) },
+            { text: "Password must contain both upper and lowercase vowels.", check: (password) => /[aeiou]/.test(password) && /[AEIOU]/.test(password) },
+            { text: "Password must contain both an even and odd number of vowels.", check: (password) => (password.match(/[aeiouAEIOU]/g) || []).length % 2 === 0 },
+            { text: "Password must not have any vowels or consonants that repeat three times.", check: (password) => !/(.)\1{2}/.test(password) },
+            { text: "Password must include exactly one uppercase letter, and no more.", check: (password) => /[A-Z]/.test(password) && !/[A-Z].*[A-Z]/.test(password) },
+            { text: "Password must have alternating letters and numbers.", check: (password) => /([a-zA-Z]\d)+/.test(password) },
+            { text: "Password must not contain the sequence 'abc'.", check: (password) => !/abc/.test(password) },
+            { text: "Password must contain an even number of consonants.", check: (password) => (password.match(/[bcdfghjklmnpqrstvwxyzBCDFGHJKLMNPQRSTVWXYZ]/g) || []).length % 2 === 0 },
+            { text: "Password must have at least two digits, not in consecutive order.", check: (password) => /\d.*\d/.test(password) && !/\d{2}/.test(password) },
+            { text: "Password must include at least one punctuation mark at random positions.", check: (password) => /[!@#$%^&*(),.?":{}|<>]/.test(password) },
+            { text: "Password must not have any consecutive vowels.", check: (password) => !/[aeiouAEIOU]{2}/.test(password) },
+            { text: "Password must not contain numbers that are the same as the letters (e.g., 'O' and '0').", check: (password) => !/[o0]/i.test(password) },
+            { text: "Password must contain at least one word from a foreign language.", check: (password) => /[àáâãäåæçèéêëìíîïñòóôõöøùúûüýÿ]/.test(password) },
+            { text: "Password must not have any consecutive identical symbols.", check: (password) => !/(.)\1/.test(password) },
+            { text: "Password must include at least one negative symbol (e.g., '-').", check: (password) => /[-]/.test(password) },
+            { text: "Password must not contain consecutive letters from the alphabet (e.g., 'ab' or 'cd').", check: (password) => !/[a-zA-Z]{2}/.test(password) },
+            { text: "Password must include a color name (e.g., red, blue, green).", check: (password) => /(red|blue|green|yellow|black|white)/i.test(password) },
+            { text: "Password must contain a space before or after a symbol.", check: (password) => /[!@#$%^&*(),.?":{}|<>] /.test(password) || / [!@#$%^&*(),.?":{}|<>]/.test(password) }
+        ];
 
-    <!-- Progress Bar -->
-    <div class="progress">
-      <div class="progress-bar"></div>
-    </div>
-  </div>
+        const passwordInput = document.getElementById('passwordInput');
+        const feedback = document.getElementById('feedback');
+        const rulesContainer = document.getElementById('rulesContainer');
 
-  <script>
-    const rules = [
-      { text: "Rule1: Must be at least 8 characters", test: pwd => pwd.length >= 8 },
-      { text: "Rule2: Must include a number", test: pwd => /\d/.test(pwd) },
-      { text: "Rule3: Must include an uppercase letter", test: pwd => /[A-Z]/.test(pwd) },
-      { text: "Rule4: Must include an emoji", test: pwd => /[\uD800-\uDFFF]/.test(pwd) },
-      { text: "Rule5: Must include 'BANANA' 🍌", test: pwd => /BANANA/.test(pwd) },
-      { text: "Rule6: Must include a color name (e.g., 'blue', 'red')", test: pwd => /(red|blue|green|yellow|pink|purple)/i.test(pwd) },
-      { text: "Rule7: Must include a two-letter country code (e.g., US, CA, IN)", test: pwd => /(US|CA|IN|FR|DE|JP|CN|RU|BR|AU)/i.test(pwd) },
-      { text: "Rule8: Must include the name of an animal", test: pwd => /(lion|tiger|elephant|zebra|giraffe)/i.test(pwd) },
-      { text: "Rule9: Must have the word 'earth'", test: pwd => /earth/i.test(pwd) },
-      { text: "Rule10: Must include a mathematical equation (e.g., 2+2=4)", test: pwd => /\d+[\+\-\*\/]\d+=\d+/.test(pwd) },
-      { text: "Rule11: Must contain a space", test: pwd => /\s/.test(pwd) },
-      { text: "Rule12: Must include a symbol (!, @, #, etc.)", test: pwd => /[!@#\$%\^&\*\(\)\_\+\-=\[\]\{\};:'",<>\./?\\|]/.test(pwd) },
-      { text: "Rule13: Must have '2025' somewhere", test: pwd => /2025/.test(pwd) },
-      { text: "Rule14: Must contain the word 'science'", test: pwd => /science/i.test(pwd) },
-      { text: "Rule15: Must include a country name", test: pwd => /(USA|Canada|Japan|France|India)/i.test(pwd) },
-      { text: "Rule16: Must contain 'Einstein' somewhere", test: pwd => /Einstein/i.test(pwd) },
-      { text: "Rule17: Must have the chemical symbol for gold (Au)", test: pwd => /Au/.test(pwd) },
-      { text: "Rule18: Must be divisible by 3 when converted to ASCII values", test: pwd => [...pwd].reduce((sum, char) => sum + char.charCodeAt(0), 0) % 3 === 0 },
-      { text: "Rule19: Must include the word 'galaxy'", test: pwd => /galaxy/i.test(pwd) },
-      { text: "Rule20: Must have the number '42' somewhere", test: pwd => /42/.test(pwd) },
-      { text: "Rule21: Must have a Fibonacci sequence number", test: pwd => /1|2|3|5|8|13|21|34|55/.test(pwd) },
-      { text: "Rule22: Must contain a city name from the list: Paris, Tokyo, Berlin", test: pwd => /(Paris|Tokyo|Berlin)/i.test(pwd) },
-      { text: "Rule23: Must have the name of a famous philosopher (e.g., Socrates, Plato)", test: pwd => /(Socrates|Plato|Aristotle)/i.test(pwd) },
-      { text: "Rule24: Must contain a mathematical symbol (e.g., +, -, *, /)", test: pwd => /[\+\-\*\/]/.test(pwd) },
-      { text: "Rule25: Must contain the name of a popular programming language", test: pwd => /(Python|Java|C#|JavaScript)/i.test(pwd) },
-      { text: "Rule26: Must have the symbol for the element oxygen (O)", test: pwd => /O/.test(pwd) },
-      { text: "Rule27: Must include a prime number", test: pwd => /(2|3|5|7|11|13|17|19|23|29)/.test(pwd) },
-      { text: "Rule28: Must include a famous movie title (e.g., Titanic, Inception)", test: pwd => /(Titanic|Inception|Avatar)/i.test(pwd) },
-      { text: "Rule29: Must contain the phrase 'Quantum Physics'", test: pwd => /Quantum Physics/i.test(pwd) },
-      { text: "Rule30: Must contain a reference to the moon (e.g., moon, lunar)", test: pwd => /(moon|lunar)/i.test(pwd) },
-      { text: "Rule31: Must contain the word 'NASA'", test: pwd => /NASA/i.test(pwd) },
-      { text: "Rule32: Must include a famous writer's name (e.g., Shakespeare, Hemingway)", test: pwd => /(Shakespeare|Hemingway|Dickens)/i.test(pwd) },
-      { text: "Rule33: Must contain the word 'algorithm'", test: pwd => /algorithm/i.test(pwd) },
-      { text: "Rule34: Must contain a word related to space exploration (e.g., rocket, satellite)", test: pwd => /(rocket|satellite)/i.test(pwd) },
-      { text: "Rule35: Must have a number that corresponds to a date in history (e.g., 1776, 1492)", test: pwd => /(1776|1492)/.test(pwd) },
-      { text: "Rule36: Must include the word 'infinity'", test: pwd => /infinity/i.test(pwd) },
-      { text: "Rule37: Must have the word 'black hole'", test: pwd => /black hole/i.test(pwd) },
-      { text: "Rule38: Must include a famous artist's name (e.g., Van Gogh, Picasso)", test: pwd => /(Van Gogh|Picasso)/i.test(pwd) },
-      { text: "Rule39: Must contain a weather-related word (e.g., rain, snow)", test: pwd => /(rain|snow|cloud|storm)/i.test(pwd) },
-      { text: "Rule40: Must have the name of an animal in the endangered species list", test: pwd => /(panda|tiger|rhino)/i.test(pwd) },
-      { text: "Rule41: Must include a mathematical constant (e.g., Pi, e)", test: pwd => /(Pi|e)/i.test(pwd) },
-      { text: "Rule42: Must include the phrase 'Artificial Intelligence'", test: pwd => /Artificial Intelligence/i.test(pwd) },
-      { text: "Rule43: Must include a word related to technology (e.g., gadget, machine)", test: pwd => /(gadget|machine|tech)/i.test(pwd) },
-      { text: "Rule44: Must include the name of a famous inventor (e.g., Tesla, Edison)", test: pwd => /(Tesla|Edison)/i.test(pwd) },
-      { text: "Rule45: Must include a Fibonacci sequence number", test: pwd => /1|2|3|5|8|13|21|34|55/.test(pwd) },
-    ];
+        let currentRuleIndex = 0;
 
-    let currentRuleIndex = 0;
-    const rulesContainer = document.getElementById("rules");
-    const progressBar = document.querySelector(".progress-bar");
-    const inputField = document.getElementById("password");
-    const tabs = document.querySelectorAll(".tab");
-
-    // Initialize all rules
-    function initializeRules() {
-      rules.forEach((rule, index) => {
-        const ruleDiv = document.createElement("div");
-        ruleDiv.classList.add("rule");
-        ruleDiv.id = `rule-${index + 1}`;
-        ruleDiv.innerText = `❌ ${rule.text}`;
-        rulesContainer.appendChild(ruleDiv);
-      });
-      // Show the first rule initially
-      showRule(currentRuleIndex);
-    }
-
-    // Show a specific rule
-    function showRule(index) {
-      const ruleDiv = document.getElementById(`rule-${index + 1}`);
-      if (ruleDiv) {
-        ruleDiv.classList.add("visible");
-        // Auto-scroll to the latest rule
-        ruleDiv.scrollIntoView({ behavior: "smooth", block: "end" });
-      }
-    }
-
-    // Update all rules dynamically
-    function updateAllRules(pwd) {
-      let allRulesPassed = true;
-      for (let i = 0; i <= currentRuleIndex; i++) {
-        const ruleDiv = document.getElementById(`rule-${i + 1}`);
-        const passed = rules[i].test(pwd);
-        if (passed) {
-          ruleDiv.classList.add("pass");
-          ruleDiv.innerText = `✔ ${rules[i].text}`;
-          if (i === currentRuleIndex && currentRuleIndex < rules.length - 1) {
-            currentRuleIndex++;
-            showRule(currentRuleIndex);
-          }
-        } else {
-          ruleDiv.classList.remove("pass");
-          ruleDiv.innerText = `❌ ${rules[i].text}`;
-          allRulesPassed = false;
+        function updateRules() {
+            for (let i = 0; i < currentRuleIndex; i++) {
+                const rule = rules[i];
+                const ruleBox = document.createElement('div');
+                ruleBox.classList.add('rule-box');
+                ruleBox.innerHTML = `
+                    ${rule.text}
+                    <span class="checkmark">&#10004;</span>
+                `;
+                ruleBox.classList.add('completed');
+                rulesContainer.appendChild(ruleBox);
+            }
         }
-      }
-      return allRulesPassed;
-    }
 
-    // Event listener for password input
-    inputField.addEventListener("input", function () {
-      const pwd = this.value;
-      const allRulesPassed = updateAllRules(pwd);
-      if (allRulesPassed) {
-        progressBar.style.width = "100%";
-      } else {
-        progressBar.style.width = `${(currentRuleIndex / rules.length) * 100}%`;
-      }
-    });
+        passwordInput.addEventListener('input', () => {
+            const password = passwordInput.value;
 
-    // Tab switching
-    tabs.forEach(tab => {
-      tab.addEventListener("click", () => {
-        tabs.forEach(t => t.classList.remove("active"));
-        tab.classList.add("active");
-        if (tab.dataset.tab === "rules") {
-          document.getElementById("rules-container").style.display = "block";
-        } else {
-          document.getElementById("rules-container").style.display = "none";
-        }
-      });
-    });
+            feedback.textContent = '';
 
-    // Initialize
-    initializeRules();
-  </script>
+            if (currentRuleIndex < rules.length && rules[currentRuleIndex].check(password)) {
+                updateRules();
+                currentRuleIndex++;
+            }
+        });
+    </script>
 </body>
 </html>
