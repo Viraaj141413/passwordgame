@@ -18,8 +18,9 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
-            width: 100vw;
             overflow: hidden;
+            width: 100vw;
+            transition: background-color 1s ease-in-out;
         }
 
         .game-container {
@@ -28,7 +29,7 @@
             border-radius: 15px;
             box-shadow: 0 0 40px rgba(0, 0, 0, 0.15);
             width: 90%;
-            max-width: 600px;
+            max-width: 900px;
             text-align: center;
             height: 90%;
             display: flex;
@@ -39,7 +40,7 @@
         }
 
         h1 {
-            font-size: 28px;
+            font-size: 38px;
             font-weight: bold;
             color: #333;
             margin-bottom: 20px;
@@ -63,8 +64,8 @@
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
 
         .rule-box.completed {
@@ -85,12 +86,20 @@
         }
 
         .input-container input {
-            width: 80%;
-            padding: 12px;
+            width: 70%;
+            padding: 14px;
             font-size: 18px;
             border-radius: 4px;
             border: 1px solid #ccc;
             outline: none;
+            margin-top: 20px;
+        }
+
+        .feedback {
+            font-size: 16px;
+            margin-top: 15px;
+            color: #f44336;
+            font-weight: bold;
         }
 
         .rules-container {
@@ -98,9 +107,40 @@
             overflow-y: auto;
             flex-grow: 1;
             display: flex;
-            flex-direction: column;
-            align-items: center;
-            max-height: 300px;
+            flex-direction: column-reverse;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .fade-out {
+            animation: fadeOut 3s ease forwards;
+        }
+
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+            }
+            to {
+                opacity: 0;
+            }
+        }
+
+        .blackout {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: black;
+            opacity: 0;
+            animation: fadeToBlack 3s forwards;
+        }
+
+        @keyframes fadeToBlack {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
     </style>
 </head>
@@ -113,76 +153,123 @@
             <input type="text" id="passwordInput" placeholder="Enter your password" />
         </div>
 
+        <div id="feedback" class="feedback"></div>
+
         <div class="rules-container" id="rulesContainer"></div>
     </div>
 
+    <div id="blackout" class="blackout hidden"></div>
+
     <script>
+        const secretPhrase = "ithinkyoufoundit";  // Secret phrase to unlock all rules
+        let currentRuleIndex = 0;
         const rules = [
-            { text: "Password must contain at least one number.", check: (password) => /\d/.test(password) },
-            { text: "Password must contain at least one special character.", check: (password) => /[!@#$%^&*(),.?":{}|<>]/.test(password) },
-            { text: "Password must be at least 8 characters long.", check: (password) => password.length >= 8 },
-            { text: "Password must have at least one uppercase letter.", check: (password) => /[A-Z]/.test(password) },
-            { text: "Password must not contain any spaces.", check: (password) => !/\s/.test(password) },
-            { text: "Password must contain at least one lowercase letter.", check: (password) => /[a-z]/.test(password) }
+            { text: "Your password must contain at least one number.", check: (password) => /\d/.test(password) },
+            { text: "Your password must contain at least one special character.", check: (password) => /[!@#$%^&*(),.?\":{}|<>]/.test(password) },
+            { text: "Your password must be at least 12 characters long.", check: (password) => password.length >= 12 },
+            { text: "Your password must include the name of a planet (e.g., Earth, Mars).", check: (password) => /(Mercury|Venus|Earth|Mars|Jupiter|Saturn|Uranus|Neptune)/i.test(password) },
+            { text: "Your password must include the word 'game'.", check: (password) => /game/i.test(password) },
+            { text: "Your password must be a palindrome.", check: (password) => password === password.split('').reverse().join('') },
+            { text: "Your password must contain a prime number.", check: (password) => /(\d+)/.test(password) && isPrime(Number(password.match(/(\d+)/)[0])) },
+            { text: "Your password must start with a capital letter.", check: (password) => /^[A-Z]/.test(password) },
+            { text: "Your password must contain the word 'hello'.", check: (password) => /hello/i.test(password) },
+            { text: "Your password must contain the name of a historical event that occurred in the 20th century.", check: (password) => /(World War II|Great Depression|Cold War|Vietnam War)/i.test(password) },
+            { text: "Your password must include the coordinates of a real location on Earth, but one that is not publicly well-known.", check: (password) => /\b-?\d+\.\d+,\s?-?\d+\.\d+\b/.test(password) },
+            { text: "Your password must contain the name of a prominent mathematician.", check: (password) => /(Fermat|Euler|Poincaré|Gauss|Ramanujan)/i.test(password) },
+            { text: "Your password must contain a reference to a significant historical event in the last 200 years.", check: (password) => /(WWII|Cold War|Civil Rights Movement|Space Race)/i.test(password) },
+            { text: "Your password must contain a reference to a science fiction novel from the 20th century.", check: (password) => /(Dune|Neuromancer|Foundation|The Left Hand of Darkness)/i.test(password) },
+            { text: "Your password must include a term related to a theoretical physics concept (e.g., string theory, multiverse).", check: (password) => /(string theory|multiverse|quantum mechanics|black hole)/i.test(password) },
+            { text: "Your password must reference a critically endangered species.", check: (password) => /(Sumatran Tiger|Vaquita|Javan Rhino)/i.test(password) },
+            { text: "Your password must contain a term related to a historically significant work of art.", check: (password) => /(Mona Lisa|Starry Night|The Scream)/i.test(password) },
+            { text: "Your password must contain a mathematical equation or concept that is proven but not commonly discussed.", check: (password) => /(Golden Ratio|Fibonacci|Pi)/i.test(password) },
+            { text: "Your password must contain a reference to a hidden historical site from ancient civilizations.", check: (password) => /(Machu Picchu|Tikal|Petra)/i.test(password) },
+            { text: "Your password must be based on the coordinates of an undiscovered or remote island.", check: (password) => /\b-?\d+\.\d+,\s?-?\d+\.\d+\b/.test(password) },
+            { text: "Your password must reference an unsolved problem in mathematics.", check: (password) => /(Riemann Hypothesis|P vs NP|Navier-Stokes Equation)/i.test(password) },
+            { text: "Your password must reference an extinct civilization or culture.", check: (password) => /(Minoan|Indus Valley|Olmec)/i.test(password) },
+            { text: "Your password must include the name of a scientist who contributed to quantum mechanics.", check: (password) => /(Heisenberg|Schrödinger|Planck|Bohr)/i.test(password) },
+            { text: "Your password must reference an unsolved mystery or historical event.", check: (password) => /(Jack the Ripper|Bermuda Triangle|Atlantis)/i.test(password) },
+            { text: "Your password must contain a reference to a specific mathematical concept used in cryptography.", check: (password) => /(RSA|Elliptic Curve|Prime Factorization)/i.test(password) },
+            { text: "Your password must contain a reference to an obscure piece of technology or invention.", check: (password) => /(Turing Machine|Differential Analyzer|Analytical Engine)/i.test(password) },
+            { text: "Your password must include the name of a planet discovered in the last 30 years.", check: (password) => /(Proxima b|Kepler-186f|Kepler-22b)/i.test(password) },
+            { text: "Your password must include the name of a famous mathematician known for their work on unsolved problems.", check: (password) => /(Andrew Wiles|John Nash|Clay Mathematics Institute)/i.test(password) }
         ];
 
-        let currentRule = 0;
-        const passwordInput = document.getElementById('passwordInput');
-        const rulesContainer = document.getElementById('rulesContainer');
+        function initializeRules() {
+            rules.forEach((rule, index) => {
+                const ruleBox = createRuleBox(rule, index);
+                if (index > 0) {
+                    ruleBox.style.display = "none";  // Hide all rules initially except Rule 1
+                }
+                rulesContainer.appendChild(ruleBox);
+            });
+        }
+
+        function createRuleBox(rule, index) {
+            const ruleBox = document.createElement('div');
+            ruleBox.classList.add('rule-box');
+            ruleBox.setAttribute('id', 'rule-' + (index + 1));
+            ruleBox.innerHTML = `<span>Rule ${index + 1}: ${rule.text}</span><span class="checkmark">✔</span>`;
+            return ruleBox;
+        }
 
         function checkPassword() {
             const password = passwordInput.value;
-            let allCompleted = true;
 
-            document.querySelectorAll('.rule-box').forEach((ruleBox, index) => {
-                if (rules[index].check(password)) {
+            // Check if the secret phrase is typed
+            if (password === secretPhrase) {
+                // Complete all rules when secret phrase is entered
+                rules.forEach((rule, index) => {
+                    const ruleBox = document.getElementById('rule-' + (index + 1));
                     ruleBox.classList.add('completed');
-                } else {
-                    ruleBox.classList.remove('completed');
-                    allCompleted = false;
+                    const checkmark = ruleBox.querySelector(".checkmark");
+                    checkmark.classList.remove('hidden');
+                });
+
+                // Fade out all rules after 5 seconds and fade the screen to black
+                setTimeout(() => {
+                    const allRules = document.querySelectorAll('.rule-box');
+                    allRules.forEach(ruleBox => {
+                        ruleBox.classList.add('fade-out');
+                    });
+                    document.getElementById('blackout').classList.remove('hidden');
+                }, 5000);
+
+                // After 5 seconds, show all rules fading out
+                feedback.textContent = "Congratulations! You've completed all the rules!";
+                return;
+            }
+
+            // Check if current rule is completed
+            const currentRule = rules[currentRuleIndex];
+            const ruleBox = document.getElementById('rule-' + (currentRuleIndex + 1));
+            const checkmark = ruleBox.querySelector(".checkmark");
+
+            if (currentRule.check(password)) {
+                ruleBox.classList.add('completed');
+                checkmark.classList.remove('hidden');
+                feedback.textContent = "Rule completed!";
+                currentRuleIndex++;
+
+                if (currentRuleIndex < rules.length) {
+                    const nextRuleBox = document.getElementById('rule-' + (currentRuleIndex + 1));
+                    nextRuleBox.style.display = "block";  // Show next rule when the current one is completed
                 }
-            });
 
-            // If the current rule is completed, add the next one
-            if (currentRule < rules.length && rules[currentRule].check(password)) {
-                addNewRule();
-            }
-        }
+                // Scroll the completed rule to the top
+                rulesContainer.prepend(ruleBox);
 
-        function addNewRule() {
-            if (currentRule >= rules.length) return;
-
-            const rule = rules[currentRule];
-            const ruleBox = document.createElement('div');
-            ruleBox.classList.add('rule-box');
-            ruleBox.setAttribute('id', 'rule-' + currentRule);
-
-            ruleBox.innerHTML = `
-                <span>Rule ${currentRule + 1}: ${rule.text}</span>
-                <span class="checkmark">&#10004;</span>
-            `;
-
-            // Add new rule to the top
-            if (rulesContainer.firstChild) {
-                rulesContainer.insertBefore(ruleBox, rulesContainer.firstChild);
+                if (currentRuleIndex === rules.length) {
+                    feedback.textContent = "Congratulations! You've completed all the rules!";
+                }
             } else {
-                rulesContainer.appendChild(ruleBox);
+                feedback.textContent = "Try again, this rule isn't complete!";
             }
-
-            // Auto-scroll to show top 3 rules
-            setTimeout(() => {
-                rulesContainer.scrollTop = 0;
-            }, 300);
-
-            currentRule++;
-        }
-
-        function initialize() {
-            addNewRule(); // Start with only the first rule
         }
 
         passwordInput.addEventListener('input', checkPassword);
-        initialize();
+
+        initializeRules();
     </script>
+
 </body>
 </html>
